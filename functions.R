@@ -1,3 +1,4 @@
+
 scrape_data <- function(url){
   
   on.exit(message('Scrape complete!\n'))
@@ -20,7 +21,6 @@ scrape_data <- function(url){
   
   
 }
-
 prepare_data <- function(data){
   
   on.exit(message('Data prep. complete!\n'))
@@ -41,8 +41,20 @@ prepare_data <- function(data){
     mutate_all(~replace_na(.x, 0)) %>% 
     group_by(company) %>% 
     arrange(departure_time) %>% 
-    mutate(daily_cum_total = cumsum(daily_count))
-  
-  
+    mutate(daily_cum_total = cumsum(daily_count)) %>% 
+    ungroup()
   
 }
+
+pivot_data <- function(data){
+  
+    data %>% 
+      select(-daily_count) %>% 
+      pivot_wider(
+        id_cols = company,
+        values_from = daily_cum_total,
+        names_from = departure_time
+    ) %>% 
+      as_tibble()
+}
+
